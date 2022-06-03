@@ -1,0 +1,5 @@
+# Project exclude paths
+/cat-service/target/
+/entity-jpa/target/
+/foreign-service/target/
+/owner-service/target/
