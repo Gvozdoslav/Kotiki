@@ -1,11 +1,12 @@
 package ru.itmo.kotiki.foreign.controller;
 
-import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.IanaLinkRelations;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.web.bind.annotation.*;
 import ru.itmo.kotiki.data.dto.AddRoleDto;
 import ru.itmo.kotiki.data.dto.AppUserDto;
@@ -17,6 +18,8 @@ import ru.itmo.kotiki.foreign.service.AppUserService;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static ru.itmo.kotiki.foreign.util.TokenProcessor.refreshTokens;
@@ -24,22 +27,21 @@ import static ru.itmo.kotiki.foreign.util.TokenProcessor.unsuccessfulProcessingT
 
 @RestController
 @RequestMapping("/users")
+@EnableMethodSecurity(securedEnabled = true)
 public class AppUserController {
 
     private final AppUserService appUserService;
-    private final AmqpTemplate template;
 
     @Autowired
-    public AppUserController(AppUserService appUserService, AmqpTemplate template) {
+    public AppUserController(AppUserService appUserService) {
 
         this.appUserService = appUserService;
-        this.template = template;
     }
 
     @GetMapping
-    public ResponseEntity<CollectionModel<EntityModel<AppUser>>> getUsers(@RequestBody String message) {
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<CollectionModel<EntityModel<AppUser>>> getUsers() {
         try {
-            template.convertAndSend("userQueue", message);
             CollectionModel<EntityModel<AppUser>> users = appUserService.findAll();
 
             return ResponseEntity.ok(users);
@@ -49,6 +51,7 @@ public class AppUserController {
     }
 
     @GetMapping("/getbyusername/{username}")
+    @PreAuthorize("hasAuthority('USER')")
     public ResponseEntity<EntityModel<AppUser>> getUser(@PathVariable String username) {
         try {
             EntityModel<AppUser> user = appUserService.findUserByUsername(username);
@@ -60,10 +63,12 @@ public class AppUserController {
     }
 
     @PostMapping("/save/user")
+//    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<EntityModel<AppUser>> saveUser(@RequestBody AppUserDto appUserDto) {
 
         try {
 
+            Logger.getAnonymousLogger().log(Level.INFO, "ABOBKENS");
             EntityModel<AppUser> userEntityModel = appUserService.saveUser(appUserDto.convertToAppUser());
             return ResponseEntity
                     .created(userEntityModel.getRequiredLink(IanaLinkRelations.SELF).toUri())
@@ -74,6 +79,7 @@ public class AppUserController {
     }
 
     @PostMapping("/save/role")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<EntityModel<Role>> saveRole(@RequestBody RoleDto roleResource) {
 
         try {
@@ -88,6 +94,7 @@ public class AppUserController {
     }
 
     @PostMapping("/save/addrole")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<?> addRoleToUser(@RequestBody AddRoleDto addRoleDto) {
 
         try {
@@ -101,6 +108,7 @@ public class AppUserController {
     }
 
     @GetMapping("/token/refresh")
+    @PreAuthorize("hasAuthority('USER')")
     public void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
         String authorizationHeader = request.getHeader(AUTHORIZATION);

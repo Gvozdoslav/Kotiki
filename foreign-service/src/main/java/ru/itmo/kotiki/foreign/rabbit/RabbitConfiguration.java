@@ -1,18 +1,17 @@
 package ru.itmo.kotiki.foreign.rabbit;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.amqp.core.AmqpAdmin;
-import org.springframework.amqp.core.FanoutExchange;
-import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.rabbit.annotation.EnableRabbit;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
-import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import ru.itmo.kotiki.data.constant.RabbitConstants;
+
 
 @Configuration
 @EnableRabbit
@@ -26,26 +25,20 @@ public class RabbitConfiguration {
     }
 
     @Bean
-    public FanoutExchange fanoutExchange() {
-        return new FanoutExchange("mainAboba");
+    public DirectExchange catDirectExchange() {
+        return new DirectExchange(RabbitConstants.CATS);
     }
 
     @Bean
-    public AmqpAdmin amqpAdmin() {
-
-        return new RabbitAdmin(connectionFactory);
+    public DirectExchange ownerDirectExchange() {
+        return new DirectExchange(RabbitConstants.OWNERS);
     }
 
     @Bean
     public RabbitTemplate rabbitTemplate() {
-
-        return new RabbitTemplate(connectionFactory);
-    }
-
-    @Bean
-    public Queue queue() {
-
-        return new Queue("userQueue");
+        final var rabbitTemplate = new RabbitTemplate(connectionFactory);
+        rabbitTemplate.setMessageConverter(messageConverter());
+        return rabbitTemplate;
     }
 
     @Bean

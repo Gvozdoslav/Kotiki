@@ -72,7 +72,7 @@ public class CatListener {
     }
 
     @RabbitListener(queues = RabbitConstants.CatConstants.DELETE_CAT)
-    public void deleteCat(UUID id) {
+    public void deleteCat(@Payload UUID id) {
         try {
             catService.deleteById(id);
             logger.info("Cat with id {} deleted successfully", id);

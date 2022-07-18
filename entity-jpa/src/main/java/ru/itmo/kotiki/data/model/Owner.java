@@ -14,15 +14,18 @@ import java.util.UUID;
 @Table(name = "Owners")
 public class Owner implements Serializable {
 
+    @Id
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(
+            name = "UUID",
+            strategy = "org.hibernate.id.UUIDGenerator"
+    )
+    @Column(name = "id", updatable = false, nullable = false)
+    private UUID id;
+
     @JsonIgnore
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
     private final List<Cat> cats = new ArrayList<>();
-
-    @Id
-    @Column(name = "Id", nullable = false)
-    @GeneratedValue(generator = "uuid")
-    @GenericGenerator(name = "uuid", strategy = "uuid")
-    private UUID id;
 
     @Column(name = "Name", nullable = false)
     private String name;

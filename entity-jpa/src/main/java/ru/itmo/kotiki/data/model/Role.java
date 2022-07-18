@@ -10,15 +10,25 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "Roles")
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+//@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Role implements Serializable {
 
     @Id
-    @GeneratedValue(generator = "uuid")
-    @GenericGenerator(name = "uuid", strategy = "uuid")
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(
+            name = "UUID",
+            strategy = "org.hibernate.id.UUIDGenerator"
+    )
+    @Column(name = "id", updatable = false, nullable = false)
     private UUID id;
+
+
     @Enumerated(value = EnumType.STRING)
     private AppUserRole roleName;
+
+//    @Id
+//    @Column(name = "id", nullable = false)
+//    private UUID id;
 
     public Role() {
     }

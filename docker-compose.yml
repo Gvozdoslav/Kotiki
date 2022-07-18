@@ -1,0 +1,94 @@
+version: "3.1"
+services:
+  foreign-service:
+    container_name: foreign-service
+    image: foreign-service
+    restart: always
+    build: foreign-service
+    depends_on:
+      - postgresdb
+    ports:
+      - 8080:8080
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgresdb:5432/kotiki
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 1qaz2wsx
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPIRNG_RABBITMQ_USERNAME: guest
+      SPIRNG_RABBITMQ_PASSWORD: guest
+      RABBITMQ_ERLANG_COOKIE: "secret cockie"
+
+  cat-service:
+    container_name: cat-service
+    image: cat-service
+    restart: always
+    build: cat-service
+    depends_on:
+      - postgresdb
+    ports:
+      - 8081:8080
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgresdb:5432/kotiki
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 1qaz2wsx
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPIRNG_RABBITMQ_USERNAME: guest
+      SPIRNG_RABBITMQ_PASSWORD: guest
+      RABBITMQ_ERLANG_COOKIE: "secret cockie"
+
+  owner-service:
+    container_name: owner-service
+    image: owner-service
+    restart: always
+    build: owner-service
+    ports:
+      - 8082:8080
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgresdb:5432/kotiki
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 1qaz2wsx
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPIRNG_RABBITMQ_USERNAME: guest
+      SPIRNG_RABBITMQ_PASSWORD: guest
+      RABBITMQ_ERLANG_COOKIE: "secret cockie"
+
+  pgadmin:
+    container_name: kotikipg
+    image: dpage/pgadmin4
+    restart: always
+    ports:
+      - 5050:80
+    depends_on:
+      - postgresdb
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: root
+      POSTGRES_DB: kotiki
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1qaz2wsx
+
+
+  postgresdb:
+    container_name: kotikidb
+    image: postgres
+    ports:
+      - 5432:5432
+    expose:
+      - 5432
+    environment:
+      POSTGRES_DB: kotiki
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1qaz2wsx
+  rabbitmq:
+    container_name: krol
+    image: rabbitmq:3.9-management
+    ports:
+      - 5672:5672
+      - 15672:15672
+    environment:
+      RABBITMQ_ERLANG_COOKIE: "secret cockie"
+      RABBITMQ_DEFAULT_USERNAME: guest
+      RABBITMQ_DEFAULT_PASSWORD: guest

@@ -2,6 +2,9 @@ package ru.itmo.kotiki.data.constant;
 
 public class RabbitConstants {
 
+    public static final String CATS = "cats";
+    public static final String OWNERS = "owners";
+
     public static class CatConstants {
 
         public static final String GET_CATS = "getCats";
