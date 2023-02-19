@@ -63,12 +63,11 @@ public class AppUserController {
     }
 
     @PostMapping("/save/user")
-//    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<EntityModel<AppUser>> saveUser(@RequestBody AppUserDto appUserDto) {
 
         try {
 
-            Logger.getAnonymousLogger().log(Level.INFO, "ABOBKENS");
             EntityModel<AppUser> userEntityModel = appUserService.saveUser(appUserDto.convertToAppUser());
             return ResponseEntity
                     .created(userEntityModel.getRequiredLink(IanaLinkRelations.SELF).toUri())
